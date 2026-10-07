@@ -2,11 +2,9 @@
 library(dplyr)
 library(tidyr)
 
-path = "/Users/juhuijin/Desktop/ccr/demand-analysis-repro/"
+source(file.path(PROJECT_DIR, "utils/style.R"))
 
-source(file.path(path, "utils/style.R"))
-
-singular_vals = read.csv(file.path(path, "/data/spectral/singular_values.csv"))
+singular_vals = read.csv(file.path(PROJECT_DIR, "/data/spectral/singular_values.csv"))
 
 singular_vals = singular_vals %>% mutate(dim = row_number())
 
@@ -67,10 +65,10 @@ text
 
 #----- Save plots 
 
-ggsave(plot = image, filename = file.path(path, "figures/image_spectral_decomp.png"), width = 9, height = 6)
-ggsave(plot = image_log, filename = file.path(path, "figures/image_spectral_decomp_log.png"), width = 9, height = 6)
-ggsave(plot = text, filename = file.path(path, "figures/text_spectral_decomp.png"), width = 9, height = 6)
-ggsave(plot = text_log, filename = file.path(path, "figures/text_spectral_decomp_log.png"), width = 9, height = 6)
+ggsave(plot = image, filename = file.path(PROJECT_DIR, "figures/image_spectral_decomp.png"), width = 9, height = 6)
+ggsave(plot = image_log, filename = file.path(PROJECT_DIR, "figures/image_spectral_decomp_log.png"), width = 9, height = 6)
+ggsave(plot = text, filename = file.path(PROJECT_DIR, "figures/text_spectral_decomp.png"), width = 9, height = 6)
+ggsave(plot = text_log, filename = file.path(PROJECT_DIR, "figures/text_spectral_decomp_log.png"), width = 9, height = 6)
 
 
 
