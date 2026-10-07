@@ -1,5 +1,5 @@
 data/raw/
 data/embeddings/
-data/code/paths*
+code/paths*
 *.npy
 .DS_Store
