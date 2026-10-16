@@ -35,12 +35,25 @@ Z_X = text.select(cs.starts_with("text_")).to_numpy()[first]     # 1540 x 768
 
 #----- CCA
 
-# (k, l) = number of components kept for text / image, chosen from the scree plots
-KL_CHOICES = [(10, 10), (30, 50), (50, 70), (100, 150)]
-N_PAIRS = 30
+# k = rank kept for X, l = rank kept for W
+KL_CHOICES = [(1, 3), (2, 6), (3, 9)]
+# all combinations instead:
+# KL_CHOICES = [(k, l) for k in [1, 2, 3] for l in [3, 4, 5, 6]]
+N_PAIRS = 3
 
-U, S, Vt = np.linalg.svd(Z_X - Z_X.mean(axis=0), full_matrices=False)
-U_t, S_t, Vt_t = np.linalg.svd(Z_W - Z_W.mean(axis=0), full_matrices=False)
+# "text": X = text, W = image.  "image": X = image, W = text.
+X_BLOCK = "image"
+if X_BLOCK == "image":
+    Z_X, Z_W = Z_W, Z_X
+
+# subtract column means before the SVD
+CENTER = False
+if CENTER:
+    Z_X = Z_X - Z_X.mean(axis=0)
+    Z_W = Z_W - Z_W.mean(axis=0)
+
+U, S, Vt = np.linalg.svd(Z_X, full_matrices=False)
+U_t, S_t, Vt_t = np.linalg.svd(Z_W, full_matrices=False)
 
 rows = {}
 for k, l in KL_CHOICES:
@@ -65,7 +78,8 @@ for k, l in KL_CHOICES:
     plt.plot(canonical_corrs["pair"], canonical_corrs[f"k{k}_l{l}"], marker="o", markersize=3, label=f"k={k}, l={l}")
 plt.xlabel("Canonical pair")
 plt.ylabel("Canonical correlation")
-plt.title("Canonical correlations, text vs. image")
+plt.title(f"Canonical correlations, X = {X_BLOCK}, W = {'image' if X_BLOCK == 'text' else 'text'}")
+plt.xticks(canonical_corrs["pair"])
 plt.ylim(0, 1)
 plt.legend()
 plt.tight_layout()

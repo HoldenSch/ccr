@@ -3,3 +3,4 @@ data/embeddings/
 code/paths*
 *.npy
 .DS_Store
+__pycache__/
