@@ -35,19 +35,21 @@ Z_X = text.select(cs.starts_with("text_")).to_numpy()[first]     # 1540 x 768
 
 #----- CCA
 
-# k = rank kept for X, l = rank kept for W
-KL_CHOICES = [(1, 3), (2, 6), (3, 9)]
-# all combinations instead:
-# KL_CHOICES = [(k, l) for k in [1, 2, 3] for l in [3, 4, 5, 6]]
-N_PAIRS = 3
+# k = rank kept for X (text), l = rank kept for W (image)
+# Isaac, 2026-10-19: try k = 5-20 and l = 10-30 with k <= l, starting from demeaned embeddings
+KL_CHOICES = [(5, 10), (10, 20), (15, 25), (20, 30)]
+# all combinations within the ranges instead:
+# KL_CHOICES = [(k, l) for k in [5, 10, 15, 20] for l in [10, 15, 20, 25, 30] if k <= l]
+N_PAIRS = max(k for k, l in KL_CHOICES)
 
 # "text": X = text, W = image.  "image": X = image, W = text.
-X_BLOCK = "image"
+# Isaac, 2026-10-19: text as X (covariates), images as W (instruments)
+X_BLOCK = "text"
 if X_BLOCK == "image":
     Z_X, Z_W = Z_W, Z_X
 
 # subtract column means before the SVD
-CENTER = False
+CENTER = True
 if CENTER:
     Z_X = Z_X - Z_X.mean(axis=0)
     Z_W = Z_W - Z_W.mean(axis=0)
@@ -73,13 +75,14 @@ canonical_corrs.to_csv(
 
 #----- Plot
 
+W_BLOCK = "image" if X_BLOCK == "text" else "text"
 plt.figure(figsize=(8, 5))
 for k, l in KL_CHOICES:
     plt.plot(canonical_corrs["pair"], canonical_corrs[f"k{k}_l{l}"], marker="o", markersize=3, label=f"k={k}, l={l}")
 plt.xlabel("Canonical pair")
 plt.ylabel("Canonical correlation")
-plt.title(f"Canonical correlations, X = {X_BLOCK}, W = {'image' if X_BLOCK == 'text' else 'text'}")
-plt.xticks(canonical_corrs["pair"])
+plt.title(f"Canonical correlations, X = {X_BLOCK}, W = {W_BLOCK}, centered = {CENTER}")
+plt.xticks(range(1, N_PAIRS + 1))
 plt.ylim(0, 1)
 plt.legend()
 plt.tight_layout()
